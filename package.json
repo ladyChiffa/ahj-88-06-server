@@ -1,0 +1,16 @@
+{
+  "name": "ahj-88-06-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "forever server.js",
+    "watch": "forever -w server.js"
+  },
+  "author": "coursar",
+  "license": "MIT",
+  "dependencies": {
+    "forever": "^4.0.3"
+  }
+}
