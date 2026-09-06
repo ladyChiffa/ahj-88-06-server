@@ -11,6 +11,7 @@
   "author": "coursar",
   "license": "MIT",
   "dependencies": {
-    "forever": "^4.0.3"
+    "forever": "^4.0.3",
+    "koa": "^3.2.1"
   }
 }

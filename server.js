@@ -1,22 +1,12 @@
 const http = require('http');
+const Koa = require('koa');
 
-const server = http.createServer((req, res) => {
-    console.log(req.url);
-    console.log(req.headers);
-    
-    const buffer = [];
-    
-    req.on('data', (chunk) => {
-        buffer.push(chunk);
-    });
-    
-    req.on('end', () => {
-        const data = Buffer.concat(buffer).toString();
-        console.log(data);
-    });
-
-    res.end('server response')
+const app = new Koa();
+app.use((ctx) => {  // функция, которая будет вызвана при каждой обработке с помощью КОА
+    console.log(ctx.headers)
 });
+
+const server = http.createServer(app.callback());
 
 const port = 8080;
 server.listen(port, (err) => {
