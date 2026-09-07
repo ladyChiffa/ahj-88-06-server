@@ -2,12 +2,19 @@ const http = require('http');
 const Koa = require('koa');
 
 const app = new Koa();
-app.use((ctx) => {  // функция, которая будет вызвана при каждой обработке с помощью КОА
+app.use((ctx, next) => {
     console.log(ctx.headers)
 
     ctx.response.body = 'server response'
+    
+    next();
 });
 
+app.use((ctx) => { 
+    console.log(ctx.headers)
+
+    ctx.response.body = 'i am the second middleware'
+});
 
 
 const server = http.createServer(app.callback());
