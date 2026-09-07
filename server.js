@@ -4,7 +4,11 @@ const Koa = require('koa');
 const app = new Koa();
 app.use((ctx) => {  // функция, которая будет вызвана при каждой обработке с помощью КОА
     console.log(ctx.headers)
+
+    ctx.response.body = 'server response'
 });
+
+
 
 const server = http.createServer(app.callback());
 
