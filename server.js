@@ -13,6 +13,7 @@ app.use((ctx, next) => {
     console.log(ctx.request.query)
     console.log(ctx.request.body)
 
+    ctx.response.set('Access-Control-Allow-Origin', '*');
     ctx.response.body = 'server response'
     
     next();
