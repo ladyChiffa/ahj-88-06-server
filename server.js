@@ -4,6 +4,8 @@ const {koaBody} = require('koa-body');
 
 const app = new Koa();
 
+const subscriptions = [];
+
 app.use(koaBody({
         urlencoded: true
 }));
@@ -13,9 +15,17 @@ app.use((ctx, next) => {
     console.log(ctx.request.query)
     console.log(ctx.request.body)
 
+    const {name, body} = ctx.request.body;
+    if (subscriptions.some(sub => sub.phone === phone)) {
+        ctx.response.status = 400;
+        ctx.response.body = 'subscription exists';
+    }
+    else {
+        subscriptions.push({name, phone});
+        ctx.response.body = 'server response';
+    }
+
     ctx.response.set('Access-Control-Allow-Origin', '*');
-    ctx.response.body = 'server response'
-    
     next();
 });
 
