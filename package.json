@@ -13,6 +13,7 @@
   "dependencies": {
     "forever": "^4.0.3",
     "koa": "^3.2.1",
-    "koa-body": "^8.0.1"
+    "koa-body": "^8.0.1",
+    "uuid": "^14.0.2"
   }
 }

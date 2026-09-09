@@ -1,6 +1,9 @@
 const http = require('http');
 const Koa = require('koa');
 const {koaBody} = require('koa-body');
+const path = require('path');
+const fs = require('fs');
+
 
 const app = new Koa();
 
@@ -8,7 +11,8 @@ let subscriptions = [];
 
 app.use(koaBody({
         urlencoded: true,
-        parsedMethods: ['POST', 'PUT', 'PATCH', 'GET', 'HEAD', 'DELETE']
+        parsedMethods: ['POST', 'PUT', 'PATCH', 'GET', 'HEAD', 'DELETE'],
+        multipart: true
 }));
 
 
@@ -27,6 +31,8 @@ app.use((ctx, next) => {
 });
 
 
+
+
 app.use((ctx, next) => {
     console.log('REQUEST DATA METHOD')
     console.log(ctx.headers)
@@ -37,8 +43,33 @@ app.use((ctx, next) => {
 });
 
 app.use((ctx, next) => {
+    console.log('POST FILES METHOD')
+    if (ctx.request.method !== 'POST' && ctx.request.url !== '/upload') {
+        console.log('----- skipped')
+        next();
+        return;
+    }
+    console.log('----- done')
+
+    console.log(ctx.request.files);
+
+    try {
+        const public = path.join(__dirname, '/public');
+        const {file} = ctx.request.files;
+        fs.copyFileSync(file.filepath, public + '/' + file.originalFilename);
+    }
+    catch (error) {
+        ctx.response.status = 500;
+        return;
+    }
+    ctx.response.body = 'OK';
+    next();
+});
+
+
+app.use((ctx, next) => {
     console.log('POST METHOD')
-    if (ctx.request.method !== 'POST') {
+    if (ctx.request.method !== 'POST' || ctx.request.url === '/upload') {
         console.log('----- skipped')
         next();
         return;
