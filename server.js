@@ -48,7 +48,7 @@ app.use((ctx, next) => {
 
 app.use((ctx, next) => {
     console.log('POST FILES METHOD')
-    if (ctx.request.method !== 'POST' && ctx.request.url !== '/upload') {
+    if (ctx.request.method !== 'POST' || ctx.request.url !== '/upload') {
         console.log('----- skipped')
         next();
         return;
@@ -87,11 +87,11 @@ app.use((ctx, next) => {
     const {name, phone} = ctx.request.body;
     if (subscriptions.some(sub => sub.phone === phone)) {
         ctx.response.status = 400;
-        ctx.response.body = 'subscription exists';
+        ctx.response.body = '{"status": "subscription exists"}';
     }
     else {
         subscriptions.push({name, phone});
-        ctx.response.body = 'OK';
+        ctx.response.body = '{"status": "OK"}';
     }
 
     next();
@@ -109,15 +109,30 @@ app.use((ctx, next) => {
     const {name, phone} = ctx.request.body;
     if (subscriptions.every(sub => sub.phone !== phone)) {
         ctx.response.status = 400;
-        ctx.response.body = 'subscription doesnt exist';
+        ctx.response.body = '{"status": "subscription doesnt exist"}';
     }
     else {
         subscriptions = subscriptions.filter(sub => sub.phone !== phone);
-        ctx.response.body = 'OK';
+        ctx.response.body = ctx.response.body = '{"status": "OK"}';
     }
 
     next();
 });
+
+app.use((ctx, next) => {
+    console.log('GET METHOD')
+    if (ctx.request.method !== 'GET') {
+        console.log('----- skipped')
+        next();
+        return;
+    }
+    console.log('----- done')
+
+    ctx.response.body = '{"status": "OK"}';
+
+    next();
+});
+
 
 
 const server = http.createServer(app.callback());
