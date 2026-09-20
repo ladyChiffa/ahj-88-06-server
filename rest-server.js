@@ -1,0 +1,100 @@
+const http = require('http');
+const Koa = require('koa');
+const {koaBody} = require('koa-body');
+const koaStatic = require('koa-static');
+const path = require('path');
+const fs = require('fs');
+const uuid = require('uuid');
+
+const app = new Koa();
+const router = require('./routes');
+
+const public = path.join(__dirname, 'public');
+
+app.use(koaStatic(public));
+
+app.use(koaBody({
+        urlencoded: true,
+        parsedMethods: ['POST', 'PUT', 'PATCH', 'GET', 'HEAD', 'DELETE'],
+        multipart: true
+}));
+
+/********************************************************************************/
+/* OPTIONS */
+app.use((ctx, next) => {
+    console.log('OPTIONS CHECK METHOD PROCESSING')
+    if (ctx.request.method !== 'OPTIONS') {
+        console.log('----- skipped')
+        next();
+        return;
+    }
+
+    console.log('----- done')
+    ctx.response.set('Access-Control-Allow-Origin', '*');
+    ctx.response.set('Access-Control-Allow-Methods', 'DELETE, PUT, PATCH, GET, POST');
+    ctx.response.status = 204;
+});
+
+/********************************************************************************/
+/* REQUEST LOGGING + universal response headers */
+app.use((ctx, next) => {
+    console.log('REQUEST DATA METHOD')
+    console.log(ctx.headers)
+    console.log(ctx.request.query)
+    console.log(ctx.request.body)
+    ctx.response.set('Access-Control-Allow-Origin', '*');
+    next();
+});
+
+
+/********************************************************************************/
+/* register router */
+app.use(router());
+
+/********************************************************************************/
+/* POST */
+
+app.use((ctx, next) => {
+    console.log('POST FILES METHOD')
+    if (ctx.request.method !== 'POST' || ctx.request.url !== '/upload') {
+        console.log('----- skipped')
+        next();
+        return;
+    }
+    console.log('----- done')
+
+    console.log(ctx.request.files);
+    let fileName;
+
+    try {
+        const {file} = ctx.request.files;
+        const subfolder = uuid.v4();
+        const uploadFolder = public + '/' + subfolder
+        fs.mkdirSync(uploadFolder);
+        fs.copyFileSync(file.filepath, uploadFolder + '/' + file.originalFilename);
+        fileName = '/' + subfolder + '/' + file.originalFilename;
+    }
+    catch (error) {
+        ctx.response.status = 500;
+        return;
+    }
+    ctx.response.body = fileName;
+    next();
+});
+
+
+/********************************************************************************/
+/* RUN SERVER */
+
+const server = http.createServer(app.callback());
+
+const port = 8080;
+server.listen(port, (err) => {
+    if(err) {
+        console.log(err);
+        return;
+    }
+
+    
+    console.log('Server is listening to ' + port);
+})
