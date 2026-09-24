@@ -5,6 +5,7 @@ const koaStatic = require('koa-static');
 const path = require('path');
 const fs = require('fs');
 const uuid = require('uuid');
+const WS = require('ws');
 
 const app = new Koa();
 const router = require('./routes');
@@ -85,17 +86,32 @@ app.use((ctx, next) => {
 
 
 /********************************************************************************/
-/* RUN SERVER */
+/* CREATE SERVERs */
 
 const server = http.createServer(app.callback());
 
+const wsServer = new WS.Server({
+                        server
+                 });
+
+const chat = ['welcome'];
+
+wsServer.on('connection', (ws) => {
+    ws.on('message', (data, isBinary) => {
+        const message = isBinary ? data : data.toString();
+        console.log(message);
+        ws.send(JSON.stringify( {chat: [message]} ));
+    });
+    ws.send(JSON.stringify({chat}));
+});
+
+/********************************************************************************/
+/* RUN SERVER */
 const port = 8080;
 server.listen(port, (err) => {
     if(err) {
         console.log(err);
         return;
     }
-
-    
     console.log('Server is listening to ' + port);
-})
+});
