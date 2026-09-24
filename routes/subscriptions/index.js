@@ -1,7 +1,7 @@
 const Router = require('koa-router');
 const router = new Router();
 
-let subscriptions = [];
+const subscriptions = require('../../db/db');
 
 /********************************************************************************/
 /* POST */
@@ -9,12 +9,12 @@ router.post('/subscriptions', (ctx) => {
     console.log('IN POST /subscriptions');
 
     const {name, phone} = ctx.request.body;
-    if (subscriptions.some(sub => sub.phone === phone)) {
+    if (subscriptions.data.some(sub => sub.phone === phone)) {
         ctx.response.status = 400;
         ctx.response.body = {status: "subscription exists"};
     }
     else {
-        subscriptions.push({name, phone});
+        subscriptions.add({name, phone});
         ctx.response.body = {status: "OK"};
     }
 });
@@ -25,12 +25,12 @@ router.delete('/subscriptions/:phone', (ctx) => {
     console.log('IN DELETE /subscriptions/<phone>');
 
     const {phone} = ctx.params;
-    if (subscriptions.every(sub => sub.phone !== phone)) {
+    if (subscriptions.data.every(sub => sub.phone !== phone)) {
         ctx.response.status = 400;
         ctx.response.body = {status: "subscription doesnt exist"};
     }
     else {
-        subscriptions = subscriptions.filter(sub => sub.phone !== phone);
+        subscriptions.data = subscriptions.data.filter(sub => sub.phone !== phone);
         ctx.response.body = {status: "OK"};
     }
 });

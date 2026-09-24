@@ -32,6 +32,7 @@ app.use((ctx, next) => {
     console.log('----- done')
     ctx.response.set('Access-Control-Allow-Origin', '*');
     ctx.response.set('Access-Control-Allow-Methods', 'DELETE, PUT, PATCH, GET, POST');
+    ctx.response.set('Access-Control-Allow-Headers', 'Content-Type');
     ctx.response.status = 204;
 });
 
