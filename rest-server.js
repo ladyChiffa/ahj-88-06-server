@@ -100,7 +100,13 @@ wsServer.on('connection', (ws) => {
     ws.on('message', (data, isBinary) => {
         const message = isBinary ? data : data.toString();
         console.log(message);
-        ws.send(JSON.stringify( {chat: [message]} ));
+
+        chat.push(message);
+        const eventData = JSON.stringify( {chat: [message]} );
+
+        Array.from(wsServer.clients)
+            .filter(client => client.readyState === WS.OPEN)
+            .forEach(client => client.send(eventData));
     });
     ws.send(JSON.stringify({chat}));
 });
